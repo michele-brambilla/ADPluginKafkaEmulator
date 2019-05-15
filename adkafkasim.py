@@ -6,10 +6,17 @@ from time import sleep
 from emulator.loggersim import log
 from emulator.sighandler import SignalHandler
 from emulator.epicsdevicesim import EpicsDeviceSimulation, EpicsDevice
+from emulator.adpluginkafka import ADKafka, ADKafkaDriver
 
 
 class ADPluginKafka(EpicsDevice):
-    pass
+    @staticmethod
+    def implement():
+        return ADKafka
+
+    @staticmethod
+    def implement_driver():
+        return ADKafkaDriver
 
 
 if __name__ == '__main__':

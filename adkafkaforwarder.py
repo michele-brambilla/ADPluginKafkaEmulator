@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
-from emulator import log, SignalHandler
+from emulator.loggersim import log
+from emulator.sighandler import SignalHandler
 
 from time import sleep
 
