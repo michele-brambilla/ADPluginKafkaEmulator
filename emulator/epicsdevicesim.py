@@ -10,10 +10,15 @@ from emulator.loggersim import log
 
 class EpicsDevice(object):
 
-    def __init__(self, *, prefix, port):
+    def __init__(self, *, prefix, ports):
         self.prefix = prefix
-        self.device = self.implement()(port)
-        self._pvdb = self.device.get_pvdb()
+        self.devices = {}
+        self._pvdb = {}
+
+        for port in ports:
+            device = self.implement()(port)
+            self.devices[port] = device
+            self._pvdb.update(device.get_pvdb())
 
         self.server = pcaspy.SimpleServer()
         self.server.createPV(self.prefix + ':', self._pvdb)
@@ -21,7 +26,8 @@ class EpicsDevice(object):
 
         self.driver = self.implement_driver()(self, self._pvdb)
 
-        self.device.set_driver(self.driver)
+        for _,device in self.devices.items():
+            device.set_driver(self.driver)
 
     @staticmethod
     def implement():
@@ -43,7 +49,7 @@ class EpicsDevice(object):
 
 class EpicsDeviceSimulation(object):
     def __init__(self, *, prefix, kafka='kafka', device=EpicsDevice):
-        self.device = device(prefix=prefix, port=kafka)
+        self.device = device(prefix=prefix, ports=[kafka,])
 
     def start(self):
         self.device.start()
