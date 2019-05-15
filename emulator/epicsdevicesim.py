@@ -48,8 +48,8 @@ class EpicsDevice(object):
 
 
 class EpicsDeviceSimulation(object):
-    def __init__(self, *, prefix, kafka='kafka', device=EpicsDevice):
-        self.device = device(prefix=prefix, ports=[kafka,])
+    def __init__(self, *, prefix, port='kafka', device=EpicsDevice):
+        self.device = device(prefix=prefix, ports=[port,])
 
     def start(self):
         self.device.start()

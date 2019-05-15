@@ -5,18 +5,8 @@ from time import sleep
 
 from emulator.loggersim import log
 from emulator.sighandler import SignalHandler
-from emulator.epicsdevicesim import EpicsDeviceSimulation, EpicsDevice
-from emulator.adpluginkafka import ADKafka, ADKafkaDriver
-
-
-class ADPluginKafka(EpicsDevice):
-    @staticmethod
-    def implement():
-        return ADKafka
-
-    @staticmethod
-    def implement_driver():
-        return ADKafkaDriver
+from emulator.epicsdevicesim import EpicsDeviceSimulation
+from emulator.devicefactory import ADPluginKafka, ADSimDetector
 
 
 if __name__ == '__main__':
@@ -30,14 +20,21 @@ if __name__ == '__main__':
 
     args = ap.parse_args()
     simulation = EpicsDeviceSimulation(prefix=args.prefix,
-                                       kafka=args.kafka,
+                                       port=args.kafka,
                                        device=ADPluginKafka)
+
+    areadetector = EpicsDeviceSimulation(prefix=args.prefix,
+                                       port='cam1',
+                                       device=ADSimDetector)
+
     simulation.start()
+    areadetector.start()
 
     signal_handler = SignalHandler()
     while True:
         sleep(1)
         if signal_handler.do_shutdown:
             simulation.stop()
+            areadetector.stop()
             break
     log.info('main::done.')
