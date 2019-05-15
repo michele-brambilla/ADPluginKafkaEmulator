@@ -1,16 +1,20 @@
 from __future__ import absolute_import, division, print_function
 
-import logging
+from emulator import log, SignalHandler
+
 from time import sleep
 
 from HistogramForwarder import KafkaHistogramForwarder
 from ImageGenerator import DataGenerator
 from epics.devices import ad_base, ad_image
+import argparse
 
 
 class SimADKafkaPlugin(object):
 
-    def __init__(self, *, camera, image, broker, topic, source='areaDetector'):
+    def __init__(self, *, camera, image, kafka, broker, topic,
+                 source='areaDetector'):
+        self.kafkapv = kafka
         self.broker = broker
         self.topic = topic
         self.camera = ad_base.AD_Camera(camera)
@@ -37,11 +41,11 @@ class SimADKafkaPlugin(object):
 
     def on_change(self, pvname=None, value=None, char_value=None, **kw):
         try:
-            logging.warning('%r : %r' % (pvname, value))
-            logging.warning('\tSizeX : %r' % self.camera.SizeX)
-            logging.warning('\tSizeY : %r' % self.camera.SizeY)
+            log.warning('%r : %r' % (pvname, value))
+            log.warning('\tSizeX : %r' % self.camera.SizeX)
+            log.warning('\tSizeY : %r' % self.camera.SizeY)
         except Exception as e:
-            logging.error('%r' % e)
+            log.error('%r' % e)
 
     def _on_size_change(self, pvname=None, value=None, char_value=None, **kw):
         if pvname == 'SizeX_RBV':
@@ -62,12 +66,28 @@ class SimADKafkaPlugin(object):
 
 
 if __name__ == '__main__':
+    ap = argparse.ArgumentParser()
+    ap.add_argument('-p', '--prefix', default='13SIM1',
+                    help='Used as prefix for the epics PVs')
+    ap.add_argument('-c', '--camera', default='cam1', help='Camera port')
+    ap.add_argument('-i', '--image', default='image1', help='Image port')
+    ap.add_argument('-k', '--kafka', default='kafka1', help='Kafka port')
+    ap.add_argument('-b', '--broker', default='ess01.psi.ch:9092',
+                    help='Kafka broker')
+    ap.add_argument('-t', '--topic', default='sim_data_topic',
+                    help='Kafka topic')
 
-    ad = SimADKafkaPlugin(camera='13SIM1:cam1:', image='13SIM1:image1:',
-                          broker='ess01.psi.ch:9092', topic='sim_data_topic')
+    args = ap.parse_args()
+    camera_prefix = args.prefix+':'+args.camera+':'
+    image_prefix = args.prefix+':'+args.image+':'
+    kafka_prefix = args.prefix + ':' + args.kafka + ':'
+    ad = SimADKafkaPlugin(camera=camera_prefix, image=image_prefix,
+                          kafka=kafka_prefix, broker=args.broker,
+                          topic=args.topic)
 
-
-
+    signal_handler = SignalHandler()
     while True:
-        logging.info(ad.values)
         sleep(1)
+        if signal_handler.do_shutdown:
+            break
+    log.info('main::done.')

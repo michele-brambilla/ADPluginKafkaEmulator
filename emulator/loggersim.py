@@ -1,3 +1,7 @@
+"""
+Bla bla bla.
+"""
+
 import logging
 
 log = logging.getLogger('dummy_application')

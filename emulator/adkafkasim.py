@@ -17,9 +17,13 @@ if __name__ == '__main__':
     ap.add_argument('-p', '--prefix',
                     default='13SIM1',
                     help='Used as prefix for the epics PVs')
+    ap.add_argument('-k', '--kafka',
+                    default='kafka1',
+                    help='Used as prefix for the Kafka PVs')
 
     args = ap.parse_args()
     simulation = EpicsDeviceSimulation(prefix=args.prefix,
+                                       kafka=args.kafka,
                                        device=ADPluginKafka)
     simulation.start()
 

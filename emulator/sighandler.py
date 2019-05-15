@@ -4,7 +4,7 @@ Signal handler to allow to stop the program with SIGINT or SIGTERM (systemd).
 
 import signal
 
-from loggersim import log
+from . import log
 
 
 class SignalHandler(object):
