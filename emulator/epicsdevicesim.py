@@ -1,17 +1,21 @@
+"""
+epicsdevicesim.py: Generic (?) device for epics emulators
+"""
+
 import pcaspy
 import pcaspy.tools
+from pprint import pprint
 
-from adpluginkafka import ADKafka, ADKafkaDriver
-from loggersim import log
+from .adpluginkafka import ADKafka, ADKafkaDriver
+from .loggersim import log
 
 
 class EpicsDevice(object):
-    _pvdb = {}
 
     def __init__(self, *, prefix, port):
         self.name = prefix
         self.device = ADKafka(port)
-        self._pvdb.update(self.device.get_pvdb())
+        self._pvdb = self.device.get_pvdb()
 
         self.server = pcaspy.SimpleServer()
         self.server.createPV(self.name + ':', self._pvdb)
@@ -24,6 +28,7 @@ class EpicsDevice(object):
     def start(self):
         # process CA transactions
         self.server_thread.start()
+        log.info(pprint(self._pvdb))
         return
 
     def stop(self):

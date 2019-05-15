@@ -1,3 +1,7 @@
+"""
+Driver and database definition for the ADPluginKafka emulator.
+"""
+
 import pcaspy.tools
 
 db_base = {

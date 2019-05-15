@@ -1,5 +1,5 @@
 """
-Bla bla bla.
+loggersim.py: Logger entrypoint
 """
 
 import logging
