@@ -4,7 +4,7 @@ Signal handler to allow to stop the program with SIGINT or SIGTERM (systemd).
 
 import signal
 
-from . import log
+from emulator.loggersim import log
 
 
 class SignalHandler(object):

@@ -6,8 +6,8 @@ import pcaspy
 import pcaspy.tools
 from pprint import pprint
 
-from .adpluginkafka import ADKafka, ADKafkaDriver
-from .loggersim import log
+from emulator.adpluginkafka import ADKafka, ADKafkaDriver
+from emulator.loggersim import log
 
 
 class EpicsDevice(object):

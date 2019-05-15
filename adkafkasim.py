@@ -3,7 +3,9 @@ from __future__ import absolute_import
 import argparse
 from time import sleep
 
-from emulator import log, SignalHandler, EpicsDeviceSimulation, EpicsDevice
+from emulator.loggersim import log
+from emulator.sighandler import SignalHandler
+from emulator.epicsdevicesim import EpicsDeviceSimulation, EpicsDevice
 
 
 class ADPluginKafka(EpicsDevice):

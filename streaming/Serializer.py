@@ -1,10 +1,16 @@
+"""
+Bla bla bla
+"""
+
 from __future__ import absolute_import, division, print_function
 
 import numpy
 
 try:
     import flatbuffers
-    from hs00 import EventHistogram, Array, ArrayUInt, ArrayFloat, DimensionMetaData, ArrayDesc
+    from streaming.hs00 import EventHistogram, Array, ArrayUInt, ArrayFloat
+    from streaming.hs00 import ArrayDesc, DimensionMetaData
+
     uint32_bytes = flatbuffers.number_types.Uint32Flags.bytewidth
 except ImportError:
     flatbuffers = None

@@ -4,8 +4,8 @@ from emulator import log, SignalHandler
 
 from time import sleep
 
-from HistogramForwarder import KafkaHistogramForwarder
-from ImageGenerator import DataGenerator
+from streaming.HistogramForwarder import KafkaHistogramForwarder
+from streaming.ImageGenerator import DataGenerator
 from epics.devices import ad_base, ad_image
 import argparse
 

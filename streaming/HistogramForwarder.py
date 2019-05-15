@@ -1,3 +1,7 @@
+"""
+Bla bla bla
+"""
+
 from __future__ import absolute_import, division, print_function
 
 import numpy as np
@@ -6,7 +10,7 @@ import logging
 from time import time as timestamp
 
 from kafka import KafkaProducer
-from Serializer import ArrayDesc, HistogramFlatbuffersSerializer
+from streaming.Serializer import ArrayDesc, HistogramFlatbuffersSerializer
 
 
 class KafkaHistogramForwarder(object):
