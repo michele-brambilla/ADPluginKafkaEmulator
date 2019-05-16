@@ -5,6 +5,8 @@ from time import sleep
 
 from epics.devices import ad_base, ad_image
 
+from emulator.devicefactory import ADPluginKafka
+from emulator.epicsdevicesim import EpicsDeviceSimulation
 from emulator.loggersim import log
 from emulator.sighandler import SignalHandler
 from streaming.HistogramForwarder import KafkaHistogramForwarder
@@ -19,12 +21,18 @@ class SimADKafkaPlugin(object):
         self.broker = broker
         self.topic = topic
         self.camera = ad_base.AD_Camera(camera)
-        self.camera.ImageMode = 'Single'
         self.image = ad_image.AD_ImagePlugin(image)
 
-        self.camera.add_callback('Acquire_RBV', self._on_acquire)
-        self.camera.add_callback('SizeX_RBV', self._on_size_change)
-        self.camera.add_callback('SizeY_RBV', self._on_size_change)
+        if any(self.camera._pvs[pv] == False for pv in ['Acquire',
+                                                         'SizeX',
+                                                         'SizeY']):
+            log.error('Camera PVs not connected.')
+            exit(-1)
+
+        self.camera.add_callback('Acquire', self._on_acquire)
+        self.camera.add_callback('SizeX', self._on_size_change)
+        self.camera.add_callback('SizeY', self._on_size_change)
+
         self.array_size = self.camera.SizeX * self.camera.SizeY
 
         self.data_generator = DataGenerator(self.camera.SizeX,
@@ -42,8 +50,6 @@ class SimADKafkaPlugin(object):
     def on_change(self, pvname=None, value=None, char_value=None, **kw):
         try:
             log.warning('%r : %r' % (pvname, value))
-            log.warning('\tSizeX : %r' % self.camera.SizeX)
-            log.warning('\tSizeY : %r' % self.camera.SizeY)
         except Exception as e:
             log.error('%r' % e)
 
@@ -77,10 +83,17 @@ if __name__ == '__main__':
     ap.add_argument('-t', '--topic', default='sim_data_topic',
                     help='Kafka topic')
 
+
     args = ap.parse_args()
     camera_prefix = args.prefix + ':' + args.camera + ':'
     image_prefix = args.prefix + ':' + args.image + ':'
     kafka_prefix = args.prefix + ':' + args.kafka + ':'
+
+    simulation = EpicsDeviceSimulation(prefix=args.prefix,
+                                       port=args.kafka,
+                                       device=ADPluginKafka)
+    simulation.start()
+
     ad = SimADKafkaPlugin(camera=camera_prefix, image=image_prefix,
                           kafka=kafka_prefix, broker=args.broker,
                           topic=args.topic)
@@ -89,5 +102,6 @@ if __name__ == '__main__':
     while True:
         sleep(1)
         if signal_handler.do_shutdown:
+            simulation.stop()
             break
     log.info('main::done.')
