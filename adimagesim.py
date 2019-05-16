@@ -13,6 +13,9 @@ if __name__ == '__main__':
     ap.add_argument('-p', '--prefix',
                     default='13SIM1',
                     help='Used as prefix for the epics PVs')
+    ap.add_argument('-c', '--camera',
+                    default='cam1',
+                    help='Used as prefix for the Kafka PVs')
     ap.add_argument('-i', '--image',
                     default='image1',
                     help='Used as prefix for the Kafka PVs')
@@ -21,8 +24,12 @@ if __name__ == '__main__':
     image = EpicsDeviceSimulation(prefix=args.prefix,
                                          port=args.image,
                                          device=ADImage)
-
     image.start()
+
+    camera = args.prefix+':'+args.camera+':'
+    device = image.device.device
+    device.register_cb(pvname=camera+'SizeX', on_change=device.on_size_change)
+    device.register_cb(pvname=camera+'SizeY', on_change=device.on_size_change)
 
     signal_handler = SignalHandler()
     while True:

@@ -5,6 +5,9 @@ Implements only the PVs required for the ADPluginKafkaEmulator.
 
 import numpy
 import pcaspy.tools
+from epics import PV
+
+from emulator.loggersim import log
 
 MAX_POINTS = 1024 * 1024
 
@@ -39,6 +42,15 @@ class ADImg(object):
         self.name = args['name']
         self.api_device = None
         self.driver = None
+        self.pvs = {}
+
+    def on_size_change(self, pvname=None, value=None, **kw):
+        log.warning('%r : %r'%(pvname,value))
+
+    def register_cb(self, *, pvname, on_change):
+        if pvname not in self.pvs:
+            entry = PV(pvname,callback=on_change)
+            self.pvs[pvname] = entry
 
     def _get_pv_prefix(self):
         return '%s:' % self.name
