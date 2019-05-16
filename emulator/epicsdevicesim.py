@@ -1,6 +1,7 @@
 """
 epicsdevicesim.py: Generic (?) device for epics emulators
 """
+from __future__ import absolute_import
 
 import pcaspy
 import pcaspy.tools
@@ -10,23 +11,18 @@ from emulator.loggersim import log
 
 class EpicsDevice(object):
 
-    def __init__(self, *, prefix, ports):
+    def __init__(self, *, prefix, port):
         self.prefix = prefix
-        self.devices = {}
-        self._pvdb = {}
 
-        for port in ports:
-            device = self.implement()(port)
-            self.devices[port] = device
-            self._pvdb.update(device.get_pvdb())
+        self.device = self.implement(name=port)
+        self.pvdb = self.device.get_pvdb()
 
         self.server = pcaspy.SimpleServer()
-        self.server.createPV(self.prefix + ':', self._pvdb)
+        self.server.createPV(self.prefix + ':', self.pvdb)
         self.server_thread = pcaspy.tools.ServerThread(self.server)
 
-        for port, device in self.devices.items():
-            driver = self.implement_driver()(port, self._pvdb)
-            device.set_driver(driver)
+        driver = self.implement_driver(name=port, pvdb=self.pvdb)
+        self.device.set_driver(driver)
 
     @staticmethod
     def implement():
@@ -47,8 +43,8 @@ class EpicsDevice(object):
 
 
 class EpicsDeviceSimulation(object):
-    def __init__(self, *, prefix, port='kafka', device=EpicsDevice):
-        self.device = device(prefix=prefix, ports=[port, ])
+    def __init__(self, *, prefix, port, device=EpicsDevice):
+        self.device = device(prefix=prefix, port=port)
 
     def start(self):
         self.device.start()

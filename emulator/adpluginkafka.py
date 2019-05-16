@@ -58,13 +58,14 @@ db_base = {
 
 class ADKafkaDriver(pcaspy.Driver):
 
-    def __init__(self, guide, pvdb):
+    def __init__(self, **args):
         super(ADKafkaDriver, self).__init__()
-        self.guide = guide
-        self.pvdb = pvdb
-        self.threads = {}
+        if 'pvdb' not in args:
+            raise self.__class__.__name__+'Missing required argument "pvdb" ' \
+                                          'in constructor'
+        self.pvdb = args['pvdb']
 
-        for pv in pvdb:
+        for pv in self.pvdb:
             if 'KafkaTopic' in pv:
                 self.setParam(pv, 'sim_data_topic')
             if 'KafkaMaxQueueSize' in pv:
@@ -84,8 +85,11 @@ class ADKafkaDriver(pcaspy.Driver):
 
 
 class ADKafka(object):
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, **args):
+        if 'name' not in args:
+            raise self.__class__.__name__ + 'Missing required argument ' \
+                                            '"name" in constructor'
+        self.name = args['name']
         self.api_device = None
         self.driver = None
 

@@ -20,19 +20,23 @@ db_base = {
 
 class ADImgDriver(pcaspy.Driver):
 
-    def __init__(self, guide, pvdb):
+    def __init__(self, **args):
         super(self.__class__, self).__init__()
-        self.guide = guide
-        self.pvdb = pvdb
-        self.threads = {}
+        if 'pvdb' not in args:
+            raise self.__class__.__name__+'Missing required argument "pvdb" ' \
+                                          'in constructor'
+        self.pvdb = args['pvdb']
 
     def write(self, pv, value):
         super(self.__class__, self).write(pv, value)
 
 
 class ADImg(object):
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, **args):
+        if 'name' not in args:
+            raise self.__class__.__name__ + 'Missing required argument ' \
+                                            '"name" in constructor'
+        self.name = args['name']
         self.api_device = None
         self.driver = None
 

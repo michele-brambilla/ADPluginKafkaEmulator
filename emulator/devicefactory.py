@@ -4,37 +4,37 @@ Devices factory
 
 from __future__ import absolute_import
 
+from emulator.addetector import ADSimulation, ADSimulationDriver
 from emulator.adimage import ADImg, ADImgDriver
 from emulator.adpluginkafka import ADKafka, ADKafkaDriver
-from emulator.adsimdetector import ADSimulation, ADSimulationDriver
 from emulator.epicsdevicesim import EpicsDevice
 
 
 class ADSimDetector(EpicsDevice):
     @staticmethod
-    def implement():
-        return ADSimulation
+    def implement(**args):
+        return ADSimulation(**args)
 
     @staticmethod
-    def implement_driver():
-        return ADSimulationDriver
+    def implement_driver(**args):
+        return ADSimulationDriver(**args)
 
 
 class ADImage(EpicsDevice):
     @staticmethod
-    def implement():
-        return ADImg
+    def implement(**args):
+        return ADImg(**args)
 
     @staticmethod
-    def implement_driver():
-        return ADImgDriver
+    def implement_driver(**args):
+        return ADImgDriver(**args)
 
 
 class ADPluginKafka(EpicsDevice):
     @staticmethod
-    def implement():
-        return ADKafka
+    def implement(**args):
+        return ADKafka(**args)
 
     @staticmethod
-    def implement_driver():
-        return ADKafkaDriver
+    def implement_driver(**args):
+        return ADKafkaDriver(**args)
