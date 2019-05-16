@@ -24,10 +24,9 @@ class EpicsDevice(object):
         self.server.createPV(self.prefix + ':', self._pvdb)
         self.server_thread = pcaspy.tools.ServerThread(self.server)
 
-        self.driver = self.implement_driver()(self, self._pvdb)
-
-        for _,device in self.devices.items():
-            device.set_driver(self.driver)
+        for port,device in self.devices.items():
+            driver = self.implement_driver()(port, self._pvdb)
+            device.set_driver(driver)
 
     @staticmethod
     def implement():

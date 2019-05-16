@@ -2,8 +2,14 @@
 Area detector simulation.
 Implements only the PVs required for the ADPluginKafkaEmulator.
 """
+from __future__ import absolute_import
 
 import pcaspy.tools
+
+from emulator.loggersim import log
+from streaming.utils import threaded
+
+from time import sleep
 
 db_base = {
     'ImageMode': {
@@ -47,9 +53,9 @@ db_base = {
 
 class ADSimulationDriver(pcaspy.Driver):
 
-    def __init__(self, guide, pvdb):
+    def __init__(self, prefix, pvdb):
         super(ADSimulationDriver, self).__init__()
-        self.guide = guide
+        self.prefix = prefix
         self.pvdb = pvdb
         self.threads = {}
 
@@ -66,18 +72,46 @@ class ADSimulationDriver(pcaspy.Driver):
                 self.setParam(pv, 1024)
 
     def write(self, pv, value):
-        # log.info('Write: {} = {}'.format(pv, value))
+        state = True
+        if pv[-4:] == '_RBV':
+            log.error('Read-only pv')
+            return False
         super(ADSimulationDriver, self).write(pv, value)
         if 'ImageMode' in pv:
             super(ADSimulationDriver, self).write(pv + '_RBV', value)
         if 'Acquire' in pv:
             super(ADSimulationDriver, self).write(pv + '_RBV', value)
+            log.warning(self.getParam(self._prefix() + 'AcquisitionTime'))
+            mode = self.getParam(self._prefix() + 'ImageMode')
+            self._acquire(reason=value, mode=mode)
         if 'AcquisitionTime' in pv:
             super(ADSimulationDriver, self).write(pv + '_RBV', value)
         if 'SizeX' in pv:
             super(ADSimulationDriver, self).write(pv + '_RBV', value)
         if 'SizeY' in pv:
             super(ADSimulationDriver, self).write(pv + '_RBV', value)
+        self.updatePVs()
+        return state
+
+    def _prefix(self):
+        return '%s:' % self.prefix
+
+    def _acquire_single_image(self):
+        sleep(self.getParam(self._prefix()+'AcquisitionTime'))
+        self.setParam(self._prefix()+'Acquire', 0)
+        self.setParam(self._prefix()+'Acquire_RBV', 0)
+        self.updatePVs()
+
+    @threaded
+    def _acquire(self, *, reason, mode):
+        if reason:
+            if mode == 'Single':
+                self._acquire_single_image()
+                return
+            # if mode == 'Continous':
+            #     while self.getParam('Acquire'):
+            #         self._acquire_single_image()
+
 
 
 class ADSimulation(object):
