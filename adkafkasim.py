@@ -16,6 +16,9 @@ if __name__ == '__main__':
     ap.add_argument('-k', '--kafka',
                     default='kafka1',
                     help='Used as prefix for the Kafka PVs')
+    ap.add_argument('-c', '--camera',
+                    default='cam1',
+                    help='Used as prefix for the Kafka PVs')
 
     args = ap.parse_args()
     simulation = EpicsDeviceSimulation(prefix=args.prefix,
@@ -23,7 +26,7 @@ if __name__ == '__main__':
                                        device=ADPluginKafka)
 
     areadetector = EpicsDeviceSimulation(prefix=args.prefix,
-                                         port='cam1',
+                                         port=args.camera,
                                          device=ADSimDetector)
 
     simulation.start()
