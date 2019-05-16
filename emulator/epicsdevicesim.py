@@ -24,7 +24,7 @@ class EpicsDevice(object):
         self.server.createPV(self.prefix + ':', self._pvdb)
         self.server_thread = pcaspy.tools.ServerThread(self.server)
 
-        for port,device in self.devices.items():
+        for port, device in self.devices.items():
             driver = self.implement_driver()(port, self._pvdb)
             device.set_driver(driver)
 
@@ -48,7 +48,7 @@ class EpicsDevice(object):
 
 class EpicsDeviceSimulation(object):
     def __init__(self, *, prefix, port='kafka', device=EpicsDevice):
-        self.device = device(prefix=prefix, ports=[port,])
+        self.device = device(prefix=prefix, ports=[port, ])
 
     def start(self):
         self.device.start()

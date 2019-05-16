@@ -4,12 +4,12 @@ Bla bla bla
 
 from __future__ import absolute_import, division, print_function
 
-import numpy as np
 import logging
-
 from time import time as timestamp
 
+import numpy as np
 from kafka import KafkaProducer
+
 from streaming.Serializer import ArrayDesc, HistogramFlatbuffersSerializer
 
 
@@ -59,8 +59,8 @@ class KafkaHistogramForwarder(object):
     def produce(self, values, *, dtype=int):
 
         if self.size_x * self.size_y == 0:
-            logging.error('Image size must be > 0 : (%r,%r)'%(self.size_x,
-                                                              self.size_y))
+            logging.error('Image size must be > 0 : (%r,%r)' % (self.size_x,
+                                                                self.size_y))
             return
 
         if self.size_x * self.size_y != len(values):

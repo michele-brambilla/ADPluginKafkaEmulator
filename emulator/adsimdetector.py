@@ -4,12 +4,12 @@ Implements only the PVs required for the ADPluginKafkaEmulator.
 """
 from __future__ import absolute_import
 
+from time import sleep
+
 import pcaspy.tools
 
 from emulator.loggersim import log
 from streaming.utils import threaded
-
-from time import sleep
 
 db_base = {
     'ImageMode': {
@@ -97,9 +97,9 @@ class ADSimulationDriver(pcaspy.Driver):
         return '%s:' % self.prefix
 
     def _acquire_single_image(self):
-        sleep(self.getParam(self._prefix()+'AcquisitionTime'))
-        self.setParam(self._prefix()+'Acquire', 0)
-        self.setParam(self._prefix()+'Acquire_RBV', 0)
+        sleep(self.getParam(self._prefix() + 'AcquisitionTime'))
+        self.setParam(self._prefix() + 'Acquire', 0)
+        self.setParam(self._prefix() + 'Acquire_RBV', 0)
         self.updatePVs()
 
     @threaded
@@ -111,7 +111,6 @@ class ADSimulationDriver(pcaspy.Driver):
             # if mode == 'Continous':
             #     while self.getParam('Acquire'):
             #         self._acquire_single_image()
-
 
 
 class ADSimulation(object):

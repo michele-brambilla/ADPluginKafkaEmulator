@@ -4,11 +4,11 @@ Bla bla bla
 
 from __future__ import absolute_import, division, print_function
 
-from streaming.utils import threaded
-
 from time import sleep
 
 from numpy.random import randint
+
+from streaming.utils import threaded
 
 
 class DataGenerator(object):

@@ -3,11 +3,10 @@ from __future__ import absolute_import
 import argparse
 from time import sleep
 
+from emulator.devicefactory import ADPluginKafka, ADSimDetector
+from emulator.epicsdevicesim import EpicsDeviceSimulation
 from emulator.loggersim import log
 from emulator.sighandler import SignalHandler
-from emulator.epicsdevicesim import EpicsDeviceSimulation
-from emulator.devicefactory import ADPluginKafka, ADSimDetector
-
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
@@ -24,8 +23,8 @@ if __name__ == '__main__':
                                        device=ADPluginKafka)
 
     areadetector = EpicsDeviceSimulation(prefix=args.prefix,
-                                       port='cam1',
-                                       device=ADSimDetector)
+                                         port='cam1',
+                                         device=ADSimDetector)
 
     simulation.start()
     areadetector.start()

@@ -1,14 +1,14 @@
 from __future__ import absolute_import, division, print_function
 
-from emulator.loggersim import log
-from emulator.sighandler import SignalHandler
-
+import argparse
 from time import sleep
 
+from epics.devices import ad_base, ad_image
+
+from emulator.loggersim import log
+from emulator.sighandler import SignalHandler
 from streaming.HistogramForwarder import KafkaHistogramForwarder
 from streaming.ImageGenerator import DataGenerator
-from epics.devices import ad_base, ad_image
-import argparse
 
 
 class SimADKafkaPlugin(object):
@@ -34,7 +34,6 @@ class SimADKafkaPlugin(object):
                                                       source=source)
         self.kafka_producer.size_x = self.camera.SizeX
         self.kafka_producer.size_y = self.camera.SizeY
-
 
     @property
     def values(self):
@@ -79,8 +78,8 @@ if __name__ == '__main__':
                     help='Kafka topic')
 
     args = ap.parse_args()
-    camera_prefix = args.prefix+':'+args.camera+':'
-    image_prefix = args.prefix+':'+args.image+':'
+    camera_prefix = args.prefix + ':' + args.camera + ':'
+    image_prefix = args.prefix + ':' + args.image + ':'
     kafka_prefix = args.prefix + ':' + args.kafka + ':'
     ad = SimADKafkaPlugin(camera=camera_prefix, image=image_prefix,
                           kafka=kafka_prefix, broker=args.broker,
