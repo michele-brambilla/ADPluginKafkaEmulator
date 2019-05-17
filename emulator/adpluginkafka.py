@@ -5,6 +5,14 @@ Driver and database definition for the ADPluginKafka emulator.
 import pcaspy.tools
 
 db_base = {
+    'KafkaBrokerAddress' : {
+        'type': 'string',
+        'description': 'Broker address | Read/Write'
+    },
+    'KafkaBrokerAddress_RBV' : {
+        'type': 'string',
+        'description': 'Broker address | Read'
+    },
     'KafkaTopic': {
         'type': 'string',
         'description': 'Topic name | Read/Write'
@@ -66,6 +74,8 @@ class ADKafkaDriver(pcaspy.Driver):
         self.pvdb = args['pvdb']
 
         for pv in self.pvdb:
+            if 'KafkaBrokerAddress' in pv:
+                self.setParam(pv, 'ess01.psi.ch:9092')
             if 'KafkaTopic' in pv:
                 self.setParam(pv, 'sim_data_topic')
             if 'KafkaMaxQueueSize' in pv:
@@ -76,13 +86,15 @@ class ADKafkaDriver(pcaspy.Driver):
     def write(self, pv, value):
         # log.info('Write: {} = {}'.format(pv, value))
         super(ADKafkaDriver, self).write(pv, value)
+        if 'KafkaBrokerAddress' in pv:
+            super(ADKafkaDriver, self).write(pv + '_RBV', value)
         if 'KafkaTopic' in pv:
             super(ADKafkaDriver, self).write(pv + '_RBV', value)
         if 'KafkaMaxQueueSize' in pv:
             super(ADKafkaDriver, self).write(pv + '_RBV', value)
         if 'KafkaStatsIntervalTime' in pv:
             super(ADKafkaDriver, self).write(pv + '_RBV', value)
-
+        self.updatePVs()
 
 class ADKafka(object):
     def __init__(self, **args):

@@ -9,14 +9,14 @@ from epics import PV
 
 from emulator.loggersim import log
 
-MAX_POINTS = 1024 * 1024
+MAX_POINTS = 128 * 128
 
 db_base = {
     'ArrayData': {
         'type': 'int',
-        'count': MAX_POINTS,
+        'count': 1,
         'description': 'Image data as an array | Read/Write',
-        'value': numpy.zeros(MAX_POINTS, dtype=int)
+        'value': numpy.zeros(1, dtype=int)
     },
 }
 
@@ -29,9 +29,12 @@ class ADImgDriver(pcaspy.Driver):
             raise self.__class__.__name__+'Missing required argument "pvdb" ' \
                                           'in constructor'
         self.pvdb = args['pvdb']
+        self.updatePVs()
 
     def write(self, pv, value):
-        super(self.__class__, self).write(pv, value)
+        log.error('%r '%(type(value)))
+        # self.setParam(pv,numpy.array(value,dtype=numpy.int32))
+        return True
 
 
 class ADImg(object):
@@ -60,6 +63,14 @@ class ADImg(object):
 
     def get_pvdb(self):
         db = {}
+        x = PV('13SIM1:cam1:SizeX_RBV')
+        y = PV('13SIM1:cam1:SizeY_RBV')
+        if all([x.connected,y.connected]):
+            db_base['ArrayData']['count'] = x.value*y.value
+            db_base['ArrayData']['value'].resize([x.value*y.value])
+        else:
+            log.error('%r -- %r'%(x.connected, y.connected))
         for field in db_base:
             db[self._get_pv_prefix() + field] = db_base[field]
+
         return db
