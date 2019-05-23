@@ -61,8 +61,15 @@ db_base = {
         'description': 'Time between Kafka broker connection stats | '
                        'Read'
     },
+    'ConnectionStatus': {
+        'type': 'int',
+        'description': 'Connection status setter| Read/Write'
+    },
+    'ConnectionMessage': {
+        'type': 'string',
+        'description': 'Connection error message setter | Read/Writer'
+    },
 }
-
 
 class ADKafkaDriver(pcaspy.Driver):
 
@@ -94,7 +101,15 @@ class ADKafkaDriver(pcaspy.Driver):
             super(ADKafkaDriver, self).write(pv + '_RBV', value)
         if 'KafkaStatsIntervalTime' in pv:
             super(ADKafkaDriver, self).write(pv + '_RBV', value)
+        if any([k in pv for k in ['ConnectionStatus_RBV',
+                                  'ConnectionMessage_RBV']]):
+            return False
+        if any([k in pv for k in ['ConnectionStatus',
+                                  'ConnectionMessage']]):
+            super(ADKafkaDriver, self).write(pv, value)
+            super(ADKafkaDriver, self).write(pv + '_RBV', value)
         self.updatePVs()
+        return True
 
 class ADKafka(object):
     def __init__(self, **args):
