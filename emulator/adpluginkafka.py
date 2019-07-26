@@ -1,10 +1,19 @@
 """
 Driver and database definition for the ADPluginKafka emulator.
 """
-
 import pcaspy.tools
 
+from emulator.loggersim import log
+
 db_base = {
+    'KafkaBrokerAddress': {
+        'type': 'string',
+        'description': 'Broker | Read/Write'
+    },
+    'KafkaBrokerAddress_RBV': {
+        'type': 'string',
+        'description': 'Broker | Read'
+    },
     'KafkaTopic': {
         'type': 'string',
         'description': 'Topic name | Read/Write'
@@ -13,9 +22,17 @@ db_base = {
         'type': 'string',
         'description': 'Topic name RBV | Read'
     },
+    'ConnectionStatus': {
+        'type': 'int',
+        'description': 'Connection status RBV | Read/Write'
+    },
     'ConnectionStatus_RBV': {
         'type': 'int',
         'description': 'Connection status RBV | Read'
+    },
+    'ConnectionMessage': {
+        'type': 'string',
+        'description': 'Connection error message RBV | Read/Write'
     },
     'ConnectionMessage_RBV': {
         'type': 'string',
@@ -61,11 +78,13 @@ class ADKafkaDriver(pcaspy.Driver):
     def __init__(self, **args):
         super(ADKafkaDriver, self).__init__()
         if 'pvdb' not in args:
-            raise self.__class__.__name__+'Missing required argument "pvdb" ' \
-                                          'in constructor'
+            raise self.__class__.__name__ + 'Missing required argument "pvdb" ' \
+                                            'in constructor'
         self.pvdb = args['pvdb']
 
         for pv in self.pvdb:
+            if 'KafkaBrokerAddress' in pv:
+                self.setParam(pv, 'ess01.psi.ch:9092')
             if 'KafkaTopic' in pv:
                 self.setParam(pv, 'sim_data_topic')
             if 'KafkaMaxQueueSize' in pv:
@@ -74,14 +93,16 @@ class ADKafkaDriver(pcaspy.Driver):
                 self.setParam(pv, 5)
 
     def write(self, pv, value):
-        # log.info('Write: {} = {}'.format(pv, value))
+        if pv[-4:] == '_RBV':
+            log.error('Read-only pv')
+            return False
         super(ADKafkaDriver, self).write(pv, value)
-        if 'KafkaTopic' in pv:
+        if any(elem in pv for elem in ['KafkaBrokerAddress', 'KafkaTopic',
+                                       'ConnectionStatus',
+                                       'ConnectionMessage']):
+            log.warning('%s : %r'%(pv,value))
             super(ADKafkaDriver, self).write(pv + '_RBV', value)
-        if 'KafkaMaxQueueSize' in pv:
-            super(ADKafkaDriver, self).write(pv + '_RBV', value)
-        if 'KafkaStatsIntervalTime' in pv:
-            super(ADKafkaDriver, self).write(pv + '_RBV', value)
+        return True
 
 
 class ADKafka(object):

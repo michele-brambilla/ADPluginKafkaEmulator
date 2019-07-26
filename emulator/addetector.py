@@ -24,11 +24,11 @@ db_base = {
         'type': 'int',
         'description': 'Acquisition status | Read'
     },
-    'AcquisitionTime': {
+    'AcquireTime': {
         'type': 'int',
         'description': 'Acquisition time | Read/Write'
     },
-    'AcquisitionTime_RBV': {
+    'AcquireTime_RBV': {
         'type': 'int',
         'description': 'Acquisition time | Read'
     },
@@ -47,6 +47,26 @@ db_base = {
     'SizeY_RBV': {
         'type': 'int',
         'description': 'Detector Y size RBV | Read'
+    },
+    'StatusMessage': {
+        'type': 'string',
+        'description': 'Status message string'
+    },
+    'DetectorState': {
+        'type' : 'string',
+        'description': 'Acquisition status'
+    },
+    'StatusMessage_RBV': {
+        'type': 'string',
+        'description': 'Status message string'
+    },
+    'DetectorState_RBV': {
+        'type' : 'string',
+        'description': 'Acquisition status'
+    },
+    'TimeRemaining_RBV': {
+        'type' : 'int',
+        'description': 'Time remaining for current image'
     },
 }
 
@@ -67,7 +87,7 @@ class ADSimulationDriver(pcaspy.Driver):
                 self.setParam(pv, 'Single')
             if 'Acquire' in pv:
                 self.setParam(pv, 0)
-            if 'AcquisitionTime' in pv:
+            if 'AcquireTime' in pv:
                 self.setParam(pv, 0.001)
             if 'SizeX' in pv:
                 self.setParam(pv, 1024)
@@ -80,26 +100,27 @@ class ADSimulationDriver(pcaspy.Driver):
             log.error('Read-only pv')
             return False
         super(ADSimulationDriver, self).write(pv, value)
-        if 'ImageMode' in pv:
+        if any(elem in pv for elem in ['ImageMode','Acquire','AcquireTime',
+                                    'SizeX','SizeY']):
             super(ADSimulationDriver, self).write(pv + '_RBV', value)
         if 'Acquire' in pv:
-            super(ADSimulationDriver, self).write(pv + '_RBV', value)
+        #     super(ADSimulationDriver, self).write(pv + '_RBV', value)
             mode = self.getParam(self._prefix() + 'ImageMode')
-            self._acquire(reason=value, mode=mode)
-        if 'AcquisitionTime' in pv:
-            super(ADSimulationDriver, self).write(pv + '_RBV', value)
-        if 'SizeX' in pv:
-            super(ADSimulationDriver, self).write(pv + '_RBV', value)
-        if 'SizeY' in pv:
-            super(ADSimulationDriver, self).write(pv + '_RBV', value)
-        self.updatePVs()
+        #     self._acquire(reason=value, mode=mode)
+        # if 'AcquireTime' in pv:
+        #     super(ADSimulationDriver, self).write(pv + '_RBV', value)
+        # if 'SizeX' in pv:
+        #     super(ADSimulationDriver, self).write(pv + '_RBV', value)
+        # if 'SizeY' in pv:
+        #     super(ADSimulationDriver, self).write(pv + '_RBV', value)
+        # self.updatePVs()
         return state
 
     def _prefix(self):
         return '%s:' % self.prefix
 
     def _acquire_single_image(self):
-        sleep(self.getParam(self._prefix() + 'AcquisitionTime'))
+        sleep(self.getParam(self._prefix() + 'AcquireTime'))
         self.setParam(self._prefix() + 'Acquire', 0)
         self.setParam(self._prefix() + 'Acquire_RBV', 0)
         self.updatePVs()
