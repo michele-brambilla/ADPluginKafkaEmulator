@@ -94,10 +94,9 @@ if __name__ == '__main__':
                                        device=ADPluginKafka)
     simulation.start()
 
-   ad = SimADKafkaPlugin(camera=camera_prefix, image=image_prefix,
-                         kafka=kafka_prefix, broker=args.broker,
-                         topic=args.topic)
-
+    # ad = SimADKafkaPlugin(camera=camera_prefix, image=image_prefix,
+    #                      kafka=kafka_prefix, broker=args.broker,
+    #                      topic=args.topic)
     signal_handler = SignalHandler()
     while True:
         sleep(1)

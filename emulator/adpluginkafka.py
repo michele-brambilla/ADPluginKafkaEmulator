@@ -100,8 +100,8 @@ class ADKafkaDriver(pcaspy.Driver):
         if any(elem in pv for elem in ['KafkaBrokerAddress', 'KafkaTopic',
                                        'ConnectionStatus',
                                        'ConnectionMessage']):
-            log.warning('%s : %r'%(pv,value))
             super(ADKafkaDriver, self).write(pv + '_RBV', value)
+        self.updatePVs()
         return True
 
 
